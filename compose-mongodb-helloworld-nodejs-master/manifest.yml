@@ -1,0 +1,7 @@
+---
+applications:
+- name:    openbankinginfra
+  host:    openbankinginfra
+  memory:  128M
+  services:
+    - compose-mongodb-openbanking

@@ -1,0 +1,35 @@
+var oauthToken = apim.getvariable('oauth.access-token');
+var urlopen = require('urlopen');
+
+var scimReqOptions = {
+	target: 'https://mmfa.hopto.org:30444/scim/Me',
+	method: 'GET',
+	headers: {
+		'Accept': 'application/json',
+		'Authorization': 'Bearer ' + oauthToken
+	},
+	timeout: 60,
+	sslClientProfile: 'webapi-sslcli-mgmt'
+};
+
+urlopen.open(scimReqOptions, function (error, scimResponse) {
+	if (error) {
+		apim.setvariable('message.body', 'error accessing scim/me end point');
+	} else {
+		scimResponse.readAsBuffer(function (readError, responseData) {
+			if (readError) {
+				apim.setvariable('message.body', '{"scim response error":' + readError + '}');
+			} else {
+				if (responseData == null) {
+					apim.setvariable('message.body', '{"scim response error":' + readError + '}');
+				} else {
+					var jsonData = JSON.parse(responseData);
+					var userId = jsonData["urn:ietf:params:scim:schemas:extension:isam:1.0:User"]["identity"];
+					apim.setvariable('username', userId);
+					apim.setvariable('oauthtoken', oauthToken);
+				}
+			}
+		});
+	}
+});
+

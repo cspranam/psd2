@@ -1,0 +1,7 @@
+name = Synchronise Application Credentials
+description = Push application credentials (client ids and secrets) to an external server
+package = IBM API Connect v5
+core = 7.x
+dependencies[] = application
+
+version = VERSION

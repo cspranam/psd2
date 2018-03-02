@@ -1,0 +1,12 @@
+var oauthToken = apim.getvariable('oauth.access-token');
+apim.setvariable('oauthtoken', oauthToken);
+
+var amount="";
+apim.readInputAsJSON(function(err,json) {
+	if(err){
+		apim.setvariable('message.body','error in post data');
+	} else {
+		amount = json["data"];
+		apim.setvariable('amount', amount);
+	}
+});
