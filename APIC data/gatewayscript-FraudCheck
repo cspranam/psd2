@@ -1,0 +1,39 @@
+var urlopen = require('urlopen');
+var username = apim.getvariable('username');
+
+var authzReqOptions = {
+	target: 'https://mmfa.hopto.org:30443/mga/rtss/rest/authz/json',
+	method: 'POST',
+	headers: {
+		'Content-Type': 'application/json',
+		'Authorization': 'Basic ZWFzdXNlcjpQYXNzdzByZA=='
+	},
+	data: '{     "Request": {         "Action": {             "Attribute": [                 {                     "AttributeId": "urn:oasis:names:tc:xacml:1.0:action:action-id",                     "DataType": "string", "Value": "GET"                 }             ]         },         "Resource": [             {                 "Attribute": [                     {                         "AttributeId": "urn:oasis:names:tc:xacml:1.0:resource:resource-id",                         "DataType": "string", "Value": "fraud"                     },                     {                         "AttributeId": "urn:oasis:names:tc:xacml:1.0:resource:user-id",                         "DataType": "string", "Value": "'+username+'"                     }                 ]             }         ],         "Environment": {             "Attribute": [                 {                     "AttributeId": "ApplicationId", "DataType": "string",                     "Value": "threat", "Issuer": "http://security.tivoli.ibm.com/policy/distribution"                 }             ]         }     } }',
+	timeout: 60,
+	sslClientProfile: 'webapi-sslcli-mgmt'
+};
+
+urlopen.open(authzReqOptions, function (error, scimResponse) {
+	if (error) {
+		apim.setvariable('message.body', 'error accessing authz end point');
+	} else {
+		scimResponse.readAsBuffer(function (readError, responseData) {
+			if (readError) {
+				apim.setvariable('message.body', '{"authz response error":' + readError + '}');
+			} else {
+				if (responseData == null) {
+					apim.setvariable('message.body', '{"authz response error":' + readError + '}');
+				} else {
+				 var jsonData = JSON.parse(responseData);
+					var decision = "";
+					decision = jsonData["Response"][0]["Decision"];
+					if(decision == 'Deny'){
+					    apim.setvariable('decision', 'DenyDueToFraud');
+					}
+					
+				
+				}
+			}
+		});
+	}
+});
