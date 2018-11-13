@@ -8,7 +8,7 @@ var scimReqOptions = {
 		'Accept': 'application/json',
 		'Authorization': 'Bearer ' + oauthToken
 	},
-	timeout: 60,
+	timeout: 120,
 	sslClientProfile: 'webapi-sslcli-mgmt'
 };
 
@@ -24,7 +24,7 @@ urlopen.open(scimReqOptions, function (error, scimResponse) {
 					apim.setvariable('message.body', '{"scim response error":' + readError + '}');
 				} else {
 					var jsonData = JSON.parse(responseData);
-					var userId = jsonData["urn:ietf:params:scim:schemas:extension:isam:1.0:User"]["identity"];
+					var userId = jsonData["userName"];
 					apim.setvariable('username', userId);
 					apim.setvariable('oauthtoken', oauthToken);
 				}
